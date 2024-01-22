@@ -99,6 +99,7 @@ def get_env_details():
     
     return os.getenv("PASSWORD")
 
+
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
