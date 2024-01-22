@@ -4,7 +4,9 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 import os
-from environs import Env
+
+from dotenv import load_dotenv
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -93,19 +95,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 
-def get_env_details():
-    env = Env()
-    env.read_env()
-    
-    return os.getenv("PASSWORD")
 
 
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "Adventurer", # my database name, you can change
-        "USER": "postgres", # your chosen or default database system name
-        "PASSWORD": get_env_details(), #
+        "NAME": os.getenv('DB_NAME'), 
+        "USER": os.getenv('DB_USER'), 
+        "PASSWORD": os.getenv('DB_PASSWORD'), #
         "HOST": "", # localhost
         "PORT": "", # 5432
     }
@@ -186,4 +183,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
