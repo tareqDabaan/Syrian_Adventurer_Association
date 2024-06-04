@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservation {{status}}</title>
+  </head>
+  <body>
+    <h2>Your reservation for the following activity has been {{status}}:</h2>
+    <ul>
+      <li><strong>Activity Name:</strong> {{ activity_name }}</li>
+      <li><strong>Activity Date:</strong> {{ activity_date }}</li>
+      <li><strong>Location:</strong> {{ location }}</li>
+      <li><strong>Activity Description:</strong> {{ activity_description }}</li>
+      <li><strong>Activity Fee:</strong> {{ activity_fee }}</li>
+      
+      {% if status == 'Accepted' %}
+        <li><strong>Remaining Days:</strong> {{ days_until_activity }} Days</li>
+    </ul>
+    <img
+        src="{{ image_url }}"
+        alt="Activity Image"
+        style="padding: 10px; margin: 0 auto; width: 400px; height: auto"
+    />
+      {% endif %}
+      
+    {% if status == 'Rejected' %}    
+      <ul>
+        <li><strong>Reason for rejection:</strong> {{ reason }}</li>
+      </ul>
+
+      <img
+      src="{{ image_url }}"
+      alt="Activity Image"
+      style="padding: 10px; margin: 0 auto; width: 400px; height: auto"
+      />
+    {% endif %}
+    <h4>
+      <strong
+        >Thanks for trusting
+        <span style="font-weight: bolder; font-style: italic; color: #ffce47"
+          >Syrian Adventurer!</span
+        ></strong
+      >
+    </h4>
+  </body>
+</html>

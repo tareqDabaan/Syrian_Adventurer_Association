@@ -1,0 +1,76 @@
+CAMPING Polygon location
+Filter in dashboard
+
+# ------------------------------- RESERVATIONS ------------------------------- #
+    list requests
+    list pending requests
+    accept requests with email notification
+    reject requests with email notification
+# ------------------------------- RESERVATIONS ------------------------------- #
+
+
+
+
+-Activities
+
+    *List """""""""DONE""""""
+    *Create """""""""NOT ALL""""""
+    *Update """""""""ERROR""""""
+    *Delete """""""""DONE""""""
+    *Retrieve 
+
+-Users
+
+    *List """""""""DONE""""""
+    *Create
+    *Update
+    *Delete
+    *Retrieve
+
+-Members
+
+    *List """""""""DONE""""""
+    *Create
+    *Update
+    *Delete """""""""DONE""""""
+    *Retrieve
+
+-Booking
+
+    *List
+    *Create
+    *Update
+    *Delete
+    *Retrieve
+
+-Articles
+
+    *List """""""""DONE""""""
+    *Create """""""""DONE""""""
+    *Update """""""""ERROR""""""
+    *Delete """""""""DONE""""""
+    *Retrieve
+
+-Gallery
+
+    *List """""""""DONE"""""" 
+    *Create """""""""DONE""""""
+    *Update 
+    *Delete """""""""DONE""""""
+    *Retrieve
+
+-Statistics
+
+    *List
+    *Create
+    *Update
+    *Delete
+    *Retrieve
+
+-Calender
+
+    *List """""""""DONE""""""
+    *Create
+    *Update
+    *Delete
+    *Retrieve

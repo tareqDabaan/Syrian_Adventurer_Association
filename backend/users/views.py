@@ -1,16 +1,58 @@
 # Third-part library imports
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets
-from rest_framework import serializers
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 # Local modules imports
 from users import serializers as userserializer, models
 
 
-class Listdaa(viewsets.ReadOnlyModelViewSet):
+#! ------------------- List User data in the Admin Dashboard ------------------ #
+class ListParticipantsData(generics.ListAPIView):
     """
+        This API will list the User's Data in the admin dashboard 
+    """
+    queryset = models.User.objects.filter(user_type = 'PARTICIPANT')
+    serializer_class = userserializer.UserSerializer
+    # permission_classes = (permissions.IsAdminUser, )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many = True)
+        
+        #? Customize the queryset to include necessary fields
+        #todo ----------------------- Participated Activities ----------------------- #
+        data = serializer.data
+        
+        #? Iterate through each item in the queryset and construct the 'full_name'
+        for item in data:
+            first_name = item['first_name']
+            mid_name = item['mid_name']
+            last_name = item['last_name']
+            
+            #? Check if mid_name is not empty
+            if mid_name: 
+                full_name = f"{first_name} {mid_name} {last_name}"
+            else:
+                full_name = f"{first_name} {last_name}"
+                
+            item['full_name'] = full_name #? Create 'full_name' field
+            
+            #? Remove individual name fields from the response
+            item.pop('first_name')
+            item.pop('mid_name')
+            item.pop('last_name')
+            
+        return Response(data, status = status.HTTP_200_OK)
+
+#! ------------------- End List User data in the Admin Dashboard ------------------ #
     
+    
+class ListData(viewsets.ReadOnlyModelViewSet):
+    """
+    An API to retrieve data related to users
+    #TODO Not Done yet
+    #!ALL DATA, with sensitive data (This might be used for user profile)
+    #*It may retrieve a specific user data, or all users data   
     """
     serializer_class = userserializer.UserSerializer
     queryset = models.User.objects
@@ -36,26 +78,11 @@ class Listdaa(viewsets.ReadOnlyModelViewSet):
 
 class UserProfile(generics.ListAPIView):
     """
-    
+    An API to retrieve user's data which will be used in the landing page #!accessable profile for everybody
     """
     serializer_class = userserializer.UserProfileSerializer
     permission_classes = (permissions.AllowAny, )
     queryset = models.User.objects
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many = True)
-        return Response(serializer.data, status = status.HTTP_200_OK)
-    
-
-class ListMemberData(generics.ListAPIView):
-    """
-    This API is used to list the member's data 
-    Permissions: Allowed for all
-    """
-    serializer_class = userserializer.ListMemberDataSerializer
-    permission_classes = (permissions.AllowAny, )
-    queryset = models.Member.objects
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

@@ -5,17 +5,31 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets, mixins
 from rest_framework import serializers
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # Local modules imports
 from users import serializers as userserializer, emails, models
+from .serializers import MyTokenObtainPairSerializer
 
 # Django imports
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import logout
 import datetime
 
+class MyObtainTokenPairView(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
+    
 
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+    
 class Signup(APIView):
     """
     This API is used to signup (register a new user)
@@ -43,7 +57,8 @@ class Signup(APIView):
             "message":"Successfully done, please check your email to verify your account"
             }, status = status.HTTP_200_OK)
 
-
+# ---------------------------------------------------------------------------- #
+#!Not completed ... Check time expiry 
 class VerifyAccount(APIView):
     """
     This API is used to verify user's account 
@@ -99,6 +114,7 @@ class VerifyAccount(APIView):
                 "message":"Account verified, you can login now"
                 }, status = status.HTTP_200_OK)
 
+# ---------------------------------------------------------------------------- #
 
 class ReGenerateOTPCode(APIView):
     """
@@ -108,7 +124,7 @@ class ReGenerateOTPCode(APIView):
     def post(self, request):
         #? Get the user email
         email = request.data.get('email', '')
-                        
+    
         #? Check if their is a user with the submitted email
         if not email:
             return Response({
@@ -134,27 +150,44 @@ class ReGenerateOTPCode(APIView):
             'message': 'Verification code has been sent to your email.'
             }, status = status.HTTP_200_OK)
         
+# ---------------------------------------------------------------------------- #
 
-class LogInAPI(TokenObtainPairView):
-    """
-    This API is used to Login in the website
-    Provide email, password and you'll get the refresh token and access token
-    Permissions: Allowed for all users
-    """
-    serializer_class = userserializer.LogInSerializer
-    permission_classes = ( )
+@method_decorator(csrf_exempt, name='dispatch')
+class LoginAPI(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password') 
     
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().post(request, *args, **kwargs)
+        user = authenticate(email = email, password = password)
+        if user is None:
+            return Response({'error':'invalid'})
         
-        #? If either email or password is wrong raise a message error 
-        except AuthenticationFailed as e:
-            return Response({
-                'message': e.detail
-                }, status = status.HTTP_401_UNAUTHORIZED)
+        refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+        
+        response = Response({'access':str(access_token)})
+        response.set_cookie(key = 'refresh', value = str(refresh), httponly = True)
+        
+        return response
+# ---------------------------------------------------------------------------- #
 
-
+class ExRefresh(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh')
+        if not refresh_token:
+            return Response({'error':'Refresh token not found'}, status = status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            refresh = RefreshToken(refresh_token)
+            access_token = refresh.access_token
+        except Exception as e:
+            return Response({'error':str(e)}, status = status.HTTP_400_BAD_REQUEST)
+        
+        response = Response({'access':str(access_token)})
+        response.set_cookie(key = 'refresh', value = str(refresh), httponly = True)
+        print(f"refresh printed:{refresh}")
+        return response
+# ---------------------------------------------------------------------------- #
 class LogoutAPI(generics.GenericAPIView):
     serializer_class = userserializer.LogoutSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -169,6 +202,16 @@ class LogoutAPI(generics.GenericAPIView):
             "message":"Logged out successfully "
             }, status = status.HTTP_200_OK)
 
+
+class LogoutTest(APIView):
+    def post(self, request):
+        response = Response()
+        response.delete_cookie(key = 'refresh')
+        response.data = {
+            'message': 'Logged out successfully'
+        }
+        return response
+# ---------------------------------------------------------------------------- #
 
 class ChangePassword(generics.UpdateAPIView):
     """
@@ -208,6 +251,7 @@ class ChangePassword(generics.UpdateAPIView):
             , status = status.HTTP_400_BAD_REQUEST
             )
     
+# ---------------------------------------------------------------------------- #
 
 class RequestPasswordReset(generics.GenericAPIView):
     """
@@ -239,21 +283,19 @@ class RequestPasswordReset(generics.GenericAPIView):
                     [user.email],
                     fail_silently=False,
                 )
-                
                 return Response({
                     'success': f'Password reset code sent to {user}'
                     }, status = status.HTTP_200_OK)
-            
             else:
                 return Response({
                     'error': 'User is not verified'
                     }, status = status.HTTP_400_BAD_REQUEST)
-        
         else:
             return Response({
                 'error': 'No user found for this email'
                 }, status = status.HTTP_404_NOT_FOUND)
 
+# ---------------------------------------------------------------------------- #
 
 class PasswordResetVerifyCode(generics.GenericAPIView):
     """
@@ -287,6 +329,7 @@ class PasswordResetVerifyCode(generics.GenericAPIView):
                 "error": "Invalid or expired code"
                 }, status=status.HTTP_400_BAD_REQUEST)
         
+# ---------------------------------------------------------------------------- #
 
 class PasswordReset(generics.UpdateAPIView):
     """
@@ -338,6 +381,7 @@ class PasswordReset(generics.UpdateAPIView):
                 "error": "Please verify you're email to reset your password"
                 }, status=status.HTTP_400_BAD_REQUEST)
 
+# ---------------------------------------------------------------------------- #
 
 class CompleteSignUp(viewsets.GenericViewSet, mixins.UpdateModelMixin):
     """
@@ -359,3 +403,29 @@ class CompleteSignUp(viewsets.GenericViewSet, mixins.UpdateModelMixin):
 
     def get_object(self):
         return self.request.user
+    
+    
+    
+    
+
+
+# class LogInAPI(TokenObtainPairView):
+#     """
+#     This API is used to Login in the website
+#     Provide email, password and you'll get the refresh token and access token
+#     Permissions: Allowed for all users
+#     """
+#     serializer_class = userserializer.LogInSerializer
+#     permission_classes = ( )
+    
+#     def post(self, request, *args, **kwargs):
+#         try:
+#             return super().post(request, *args, **kwargs)
+        
+#         #? If either email or password is wrong raise a message error 
+#         except AuthenticationFailed as e:
+#             return Response({
+#                 'message': e.detail
+#                 }, status = status.HTTP_401_UNAUTHORIZED)
+
+
