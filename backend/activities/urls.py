@@ -5,7 +5,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 # Local modules imports
-from activities import views
+from activities import views, generat_mock_activities
 
 app_name = "activities"
 router = DefaultRouter()
@@ -21,7 +21,13 @@ urlpatterns = [
     path('calender/', views.ActivityByMonthAPIView.as_view()),
     
     
-    # path('delete_activity/<int:pk>', views.ActivityDeleteView.as_view()),
+    
+    
+    
+    path('mock_activities/', generat_mock_activities.create_mock_activities),
+    
+    path('test/', views.TestActi.as_view()),
+    
     
     #!landing page
     path('upcoming_activities/', views.UpcomingActivities.as_view()),
@@ -30,6 +36,12 @@ urlpatterns = [
     path('activity_by_type/', views.activity_by_type),
     path('activity_by_name/', views.activity_by_name),
     path('activity_by_location/', views.activity_by_location),
+    
+    
+    
+    
+    
+    
     # --------------------------------- End Endpoints -------------------------------- #
     
 ]

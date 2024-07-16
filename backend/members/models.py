@@ -15,7 +15,7 @@ class Member(models.Model):
     gender = models.CharField(max_length = 16, choices = User.GenderType.choices, default = User.GenderType.MALE)
     phone = models.CharField(max_length = 16, unique = False, null = False) #!Unique must be set to True
     current_city =  models.CharField(max_length = 65, blank=True, null=True)
-    work = models.CharField(max_length = 32)
+    work = models.CharField(max_length = 128)
     martial_status = models.CharField(max_length = 32, choices = User.MartialStatus.choices)
     email = models.EmailField(_("email address"), unique=True, db_index = True)
     age = models.IntegerField(default = 15)
@@ -23,7 +23,8 @@ class Member(models.Model):
     social_media_profiles = models.JSONField()
     is_active = models.BooleanField(default = True)
     profile_image = models.ImageField(_("Images"), upload_to = upload_to, blank=True, null=True)
-
+    text = models.TextField(blank=True, null=True)
+    
     def __str__(self) -> str:
         return self.email
     

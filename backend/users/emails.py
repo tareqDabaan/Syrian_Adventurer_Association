@@ -13,49 +13,26 @@ def generate_otp():
     digits = string.digits
     return ''.join(random.choice(digits) for _ in range(6))
 
+from django.template.loader import render_to_string
 
 #? Function to send verification code to users
 def send_otp_via_email(email):
     """
-    This function is used to send the OTP code to the email 
+    Sends the OTP code to the user's email using an HTML template.
     """
-    
-    subject = f'Welcome to Adventurer - Verify Your Account'
+
+    subject = 'Welcome to Adventurer - Verify Your Account'
     otp = generate_otp()
-    
-    if hasattr(settings, 'OTP_EXPIRY_MINUTES'):
-        # Use configured expiry time if available
-        message = f"""
-        Thank you for signing up with Adventurer!
 
-        To complete your account setup, please enter the following one-time verification code:
+    # Render the HTML template with OTP
+    html_message = render_to_string('email/signup.html', {'otp': otp})
 
-        {otp}
-
-        This code is valid for {settings.OTP_EXPIRY_MINUTES} minutes.
-
-        Sincerely,
-
-        The Adventurer Team
-        """
-    else:
-        message = f"""
-        Thank you for signing up with Adventurer!
-
-        To complete your account setup, please enter the following one-time verification code:
-
-        {otp}
-
-        Please use this code promptly for security reasons.
-
-        Sincerely,
-
-        The Adventurer Team
-        """
-    
+    # Send the email
     email_from = settings.EMAIL_HOST_USER
-    send_mail(subject, message, email_from, [email])
-    user_obj = User.objects.get(email = email)
+    send_mail(subject, '', email_from, [email], html_message=html_message)
+
+    # Update user's OTP and OTP sent time
+    user_obj = User.objects.get(email=email)
     user_obj.otp = otp
-    user_obj.otp_sent_time = datetime.datetime.now()  # Add parentheses for function call
+    user_obj.otp_sent_time = datetime.datetime.now()
     user_obj.save()

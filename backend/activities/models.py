@@ -1,4 +1,5 @@
 # Django imports 
+from typing import Any
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models as gismodels
@@ -29,11 +30,10 @@ class ActivityType(models.Model):
     def __str__(self):
         return self.activity_type
         
-
 class Activity(models.Model):
     
     activity_type = models.ForeignKey(ActivityType, on_delete = models.CASCADE)
-    starting_point = gismodels.PointField(srid = 4326, null = False, blank = False)
+    point_on_map = gismodels.MultiPointField(srid = 4326, null = False, blank = False)
     start_at = models.DateTimeField()
     ends_at = models.DateTimeField()
     max_participants = models.PositiveIntegerField()
@@ -42,7 +42,6 @@ class Activity(models.Model):
     activity_description = models.TextField()
     registration_deadline = models.DateField()
     location = models.CharField(max_length = 56, blank = False, null = False)
-    destination_location = gismodels.PointField(srid = 4326, blank = False, null = False)
     image = models.ImageField(_("Images"), upload_to = upload_to, blank=True, null=True)
     members = models.ManyToManyField(Member)
     

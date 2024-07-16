@@ -77,7 +77,7 @@ class MemberViewSet(viewsets.ModelViewSet):
             member = queryset.get(pk=pk)
         except models.Member.DoesNotExist:
             return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = self.get_serializer(member)
+        serializer = memberserializer.ListMemberDataSerializer(member)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -213,7 +213,8 @@ class OurTeam(generics.ListAPIView):
     def get_queryset(self):
         return models.Member.objects.all()
   
-    
+from datetime import datetime
+
 #* ------------------------ One Member in landing page ------------------------ #
 class MemberActivityAPIView(APIView):
     """
@@ -239,9 +240,23 @@ class MemberActivityAPIView(APIView):
         member_data = memberserializer.OneMemberSerializer(member).data
         activities_data = memberserializer.ActivitySerializer(member.activity_set.all(), many=True).data
         
+        response_data = []
+        
+        for activity in activities_data:
+            start_at_str = activity['start_at']
+            start_at = datetime.strptime(start_at_str, '%Y-%m-%dT%H:%M:%S.%fZ')  # Adjust format as needed
+            
+            response_data.append(
+                {
+                    "activity_name": activity['activity_name'],
+                    "image": activity['image'],
+                    "start_at": start_at.strftime('%Y-%m-%d'),
+                    "location": activity['location'],
+                }
+            )
         return Response({
             "member": member_data,
-            "activities": activities_data
+            "activities": response_data
             }, status = status.HTTP_200_OK)
         
 
@@ -256,7 +271,7 @@ def analyze_member_ages(request):
     # Calculate mean age
     mean_age = df['age'].mean()
 
-    return Response({'mean_age': mean_age})  # Example data
+    return Response({'mean_age': mean_age})  
 
 
 @api_view(['GET'])
@@ -269,3 +284,5 @@ def get_member_counts_by_city(request):
 
     # Return the dictionary as JSON response
     return Response(member_counts)
+
+

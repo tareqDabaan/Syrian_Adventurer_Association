@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Your Payment</title>
+    <script>
+        function handlePaymentResponse(success) {
+            if (success) {
+                alert("Payment successful!");
+            } else {
+                alert("Payment failed. Please try again.");
+            }
+        }
+
+        async function submitPaymentForm(event) {
+            event.preventDefault();
+            const form = document.getElementById('payment-form');
+            const formData = new FormData(form);
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                handlePaymentResponse(true);
+            } else {
+                handlePaymentResponse(false);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Complete Your Payment</h1>
+    <form id="payment-form" action="{% url 'payment_page' reservation_id=reservation_id %}" method="post" onsubmit="submitPaymentForm(event)">
+        {% csrf_token %}
+        <input type="hidden" name="reservation_id" value="{{ reservation_id }}">
+        <input type="hidden" name="activity_fee" value="{{ activity_fee }}">
+        <label for="card-number">Card Number</label>
+        <input type="text" id="card-number" name="card_number" required>
+        <label for="expiry-date">Expiry Date</label>
+        <input type="text" id="expiry-date" name="expiry_date" required>
+        <label for="cvc">CVC</label>
+        <input type="text" id="cvc" name="cvc" required>
+        <button type="submit">Submit Payment</button>
+    </form>
+</body>
+</html>

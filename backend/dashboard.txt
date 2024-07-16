@@ -1,5 +1,16 @@
-CAMPING Polygon location
-Filter in dashboard
+CAMPING Polygon location # Done
+Filter in dashboard # Done 
+Reservation operation # 90% Done
+
+Statistics 
+Discount 
+Contact Us #Done
+
+For discount and count reservations to each user:
+    create a field in the user model and each time a user create a request and the request is approved
+    the field will increase by one
+    when the field reaches 10...a 20% discount is applied
+
 
 # ------------------------------- RESERVATIONS ------------------------------- #
     list requests

@@ -1,6 +1,7 @@
 from django.urls import path, include
 from members import views
 from rest_framework.routers import DefaultRouter
+from members import generate_mock_members
 
 app_name = "members"
 
@@ -27,7 +28,11 @@ urlpatterns = [
 
     # ------------------------------ End Admin Dashboard ----------------------------- #
 
-
+    
+    # ------------------------------ Testing ----------------------------- #
+    path('mock_members/', generate_mock_members.create_mock_users),
+    # ------------------------------ End Testing ----------------------------- #
+    
 
 
 

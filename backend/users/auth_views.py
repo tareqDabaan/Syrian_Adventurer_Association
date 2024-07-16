@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets, mixins
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 # Local modules imports
 from users import serializers as userserializer, emails, models
 from .serializers import MyTokenObtainPairSerializer
@@ -19,6 +20,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import logout
 import datetime
+import threading
 
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
@@ -48,8 +50,8 @@ class Signup(APIView):
             serializer.is_valid(raise_exception = True)
             serializer.save()
         
-            emails.send_otp_via_email(serializer.data['email'])
-        
+            email_thread = threading.Thread(target = emails.send_otp_via_email, args = (serializer.data['email'], ))
+            email_thread.start()
         except serializers.ValidationError as e:
             return Response(e.detail, status = status.HTTP_400_BAD_REQUEST)
         
@@ -276,13 +278,24 @@ class RequestPasswordReset(generics.GenericAPIView):
                 models.PasswordReset.objects.create(user = user, otp = otp)
                 
                 #? Send email code
-                send_mail(
-                    'Password Reset Code',
-                    f'Your password reset code is: {otp}',
-                    'your_email@example.com',  # Replace with your sender email
-                    [user.email],
-                    fail_silently=False,
-                )
+                def send_email_async():
+                    # Load HTML template
+                    html_content = render_to_string('email/password_reset_code.html', {'otp': otp, 'user': user})
+
+                    # Send email using EmailMultiAlternatives for HTML only
+                    msg = EmailMultiAlternatives(
+                        'Password Reset Code',
+                        html_content,
+                        'your_email@example.com',  # Replace with your sender email
+                        [user.email]
+                    )
+                    msg.content_subtype = 'html'  # Ensure content type is set to HTML
+                    msg.send()
+
+                # Create and start a new thread for sending email
+                email_thread = threading.Thread(target=send_email_async)
+                email_thread.start()
+                
                 return Response({
                     'success': f'Password reset code sent to {user}'
                     }, status = status.HTTP_200_OK)

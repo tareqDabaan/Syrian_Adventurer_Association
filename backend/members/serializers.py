@@ -35,33 +35,37 @@ class ListMemberDataSerializer(serializers.ModelSerializer):
         return obj.date_joined.strftime('%Y-%m-%d')
 
 
+   
 class OurTeamSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Member
         fields = ['profile_image','first_name', 'last_name', 'age', 'date_joined']
+        
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)  # Extract and remove 'fields' argument
+        super().__init__(*args, **kwargs)
+        if fields:
+            self.Meta.fields = fields
+            
+    def get_profile_image(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.profile_image.url)
+        return obj.profile_image.url
 
     def to_representation(self, instance):
+        representation = super().to_representation(instance)
         full_name = "{} {}".format(instance.first_name, instance.last_name)
-        
-        image_url = None
         started_at = instance.date_joined.date()
-        
-        if instance.profile_image:
-            image_url = instance.profile_image.url
-            
-        return {
-            "id": instance.id
-            , "full_name": full_name
-            , "started_at": started_at
-            , "age": instance.age
-            , "image": image_url
-        }
-
+        representation['full_name'] = full_name
+        representation['started_at'] = started_at
+        return representation
+    
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ['activity_name', 'image']
+        fields = ['activity_name', 'image', 'start_at', 'location']
       
 class OneMemberSerializer(serializers.ModelSerializer):
 

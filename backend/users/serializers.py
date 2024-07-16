@@ -295,6 +295,26 @@ class UserSerializer(serializers.ModelSerializer):
             super().__init__(*args, **kwargs)
             if fields:
                 self.Meta.fields = fields
+
+    def get_profile_image(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.profile_image.url)
+        return obj.profile_image.url
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        first_name = representation.pop('first_name', '')
+        mid_name = representation.pop('mid_name', '')
+        last_name = representation.pop('last_name', '')
+        
+        if mid_name:
+            full_name = f"{first_name} {mid_name} {last_name}"
+        else:
+            full_name = f"{first_name} {last_name}"
+
+        representation['full_name'] = full_name
+        return representation
                 
 class UserProfileSerializer(serializers.ModelSerializer):
     
@@ -316,3 +336,28 @@ class UserProfileSerializer(serializers.ModelSerializer):
             , "phone": instance.phone
             # todo, "image":instance.image.split(",")
         }
+
+
+
+# class UserFilterSerializer(serializers.ModelSerializer):
+    
+#     class Meta:
+#         model = User
+#         fields = ['email', 'first_name', 'last_name', 'current_city', 'phone', 'gender', 'age', 'profile_image']
+    
+#     def __init__(self, instance=None, data=..., **kwargs):
+#         super().__init__(instance, data, **kwargs)
+
+#     def to_representation(self, instance: User):
+#         full_name = "{} {}".format(instance.first_name, instance.last_name)
+        
+#         return {
+#             "id": instance.id
+#             , "email": instance.email
+#             , "full_name": full_name
+#             , "current_city": instance.current_city
+#             , "profile_image": instance.profile_image
+#             , "phone": instance.phone
+#             , "age": instance.age
+#             # todo, "image":instance.image.split(",")
+#         }

@@ -24,24 +24,7 @@ class ListParticipantsData(generics.ListAPIView):
         data = serializer.data
         
         #? Iterate through each item in the queryset and construct the 'full_name'
-        for item in data:
-            first_name = item['first_name']
-            mid_name = item['mid_name']
-            last_name = item['last_name']
-            
-            #? Check if mid_name is not empty
-            if mid_name: 
-                full_name = f"{first_name} {mid_name} {last_name}"
-            else:
-                full_name = f"{first_name} {last_name}"
-                
-            item['full_name'] = full_name #? Create 'full_name' field
-            
-            #? Remove individual name fields from the response
-            item.pop('first_name')
-            item.pop('mid_name')
-            item.pop('last_name')
-            
+        
         return Response(data, status = status.HTTP_200_OK)
 
 #! ------------------- End List User data in the Admin Dashboard ------------------ #

@@ -36,5 +36,12 @@ urlpatterns = [
     # Reservations Application Endpoints 
     path('reservations/', include('reservations.urls', namespace = 'reservations')),  
     
+    # Admins Application Endpoints 
+    path('admins/', include('admins.urls', namespace = 'admins')),  
+    
+    # User Preferences Application Endpoints 
+    path('preferences/', include('user_preferences.urls', namespace = 'user_preferences')),  
+    
+    path('price/', include('participants.urls', namespace = 'price')),  
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

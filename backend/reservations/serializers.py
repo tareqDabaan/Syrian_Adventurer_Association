@@ -1,12 +1,46 @@
 
 from rest_framework import serializers
-from .models import Request
+from .models import Request, AcceptedReservations, RejectedReservations
 from users.models import User
 from activities.models import Activity
 
 class ActivityCountSerializer(serializers.Serializer):
     activities = serializers.IntegerField()
-
+    
+class AcceptedReservationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcceptedReservations
+        fields = "__all__"
+    def to_representation(self, instance: AcceptedReservations):
+        # original_repr =  super().to_representation(instance)
+      
+        return {
+            "user_email" : instance.user.email,
+            "activity_name" : instance.activity_id.activity_name,
+            "accepted_at" : instance.approved_at.strftime('%Y-%m-%d'),
+        }    
+        
+        
+        
+class RejectedReservationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RejectedReservations
+        fields = "__all__"
+        
+    def to_representation(self, instance: RejectedReservations):
+        # original_repr =  super().to_representation(instance)
+      
+        return {
+            "user_email" : instance.user.email,
+            "activity_name" : instance.activity_id.activity_name,
+            "rejected_at" : instance.rejected_at.strftime('%Y-%m-%d'),
+            "reason": instance.reason
+        }    
+        
+class CreateRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = "__all__"
 
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,19 +49,13 @@ class RequestSerializer(serializers.ModelSerializer):
 
     
     def to_representation(self, instance: Request):
-        # original_repr =  super().to_representation(instance)
-        # original_repr["user_email"] = instance.participant_id.email
-        # original_repr["location_id"] = instance.service.provider_location.id
-        # original_repr["provider_id"] = instance.service.provider_location.service_provider.id
-        # original_repr["provider_email"] = instance.service.provider_location.service_provider.email
-        # original_repr["provider_business_name"] = instance.service.provider_location.service_provider.business_name
-        
+
         return {
             "request_id": instance.id,
             "user_email" : instance.participant_id.email,
             "activity_name" : instance.activity_id.activity_name,
-            "activity_date" : instance.activity_id.start_at,
-            "request_date" : instance.request_created_at,
+            "activity_date" : instance.activity_id.start_at.date(),
+            "request_date" : instance.request_created_at.date(),
             "request_status" : instance.status,
         }
 

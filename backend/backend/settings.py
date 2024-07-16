@@ -17,7 +17,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['http://localhost:3000',
                  '127.0.0.1',
-                 '4bf2-146-70-104-6.ngrok-free.app'
+                 '0dca-145-249-53-86.ngrok-free.app'
             ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'reservations.apps.ReservationsConfig',
     'users.apps.UsersConfig',
     'gallery.apps.GalleryConfig',
+    'user_preferences.apps.UserPreferencesConfig',
     
     #Third Party Packages
     'rest_framework_simplejwt',
@@ -274,6 +275,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.contrib.gis.db.backends.postgis",
+#         "NAME": os.getenv('DB_NAME'), 
+#         "USER": os.getenv('DB_USER'), 
+#         "PASSWORD": os.getenv('DB_PASSWORD'), #
+#         "HOST": "postgresql-tareqdabaan.alwaysdata.net", # localhost
+#         "PORT": "5432", # 5432
+#     }
+# }
 
 AUTH_USER_MODEL = "users.User"
 

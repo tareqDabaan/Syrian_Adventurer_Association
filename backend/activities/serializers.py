@@ -18,8 +18,8 @@ class ActivityDetailsSerializer(serializers.ModelSerializer):
   
     class Meta:
         model = Activity
-        fields = ['id','activity_name','activity_description', 'starting_point',
-                  'destination_location', 'image', 'members']
+        fields = ['id','activity_name','activity_description', 'point_on_map',
+                  'image', 'members']
     
     def get_members(self, obj):
         members_data = MemberSerializer(obj.members, many = True).data
@@ -35,8 +35,8 @@ class ActivitySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Activity
-        fields = ['activity_name','activity_description', 'starting_point',
-                  'destination_location', 'image', 'members']
+        fields = ['activity_name','activity_description', 'point_on_map',
+                'image', 'members']
 
 
 class ActivityTypeSerializer(serializers.ModelSerializer):
@@ -51,12 +51,32 @@ class DeleteSerializer(serializers.ModelSerializer):
         fields = '__all__'   
             
             
-            
+
+
             
             
             
     #!Solve Image ###################
 class UpComingActivitySerializerLimited(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'       
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url    
+    
+    def to_representation(self, instance: Activity):
+        representation = super().to_representation(instance)
+        representation["id"]= instance.id,
+        representation["name"]= instance.activity_name,
+        representation["start_at"]= instance.start_at.date(),
+        representation["ends_at"]= instance.ends_at,
+        representation["activity_type"]= instance.activity_type.activity_type,
+        representation["location"]= instance.location,
+        return representation
+class ActivityFilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = '__all__'       
@@ -69,14 +89,12 @@ class UpComingActivitySerializerLimited(serializers.ModelSerializer):
         return {
             "id": instance.id,
             "image": image_url,
-            "name": instance.activity_name,
+            "activity_name": instance.activity_name,
             "start_at": instance.start_at.date(),
             "ends_at": instance.ends_at,
             "activity_type": instance.activity_type.activity_type,
             "location": instance.location,
         }
-  
-
 # ----------------------------------- ADMIN ---------------------------------- #
 
 class RUDActivitySerializer(serializers.ModelSerializer):

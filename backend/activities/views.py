@@ -3,17 +3,23 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics
 from rest_framework.decorators import api_view
-from rest_framework.pagination import PageNumberPagination
+from activities.pagination import CustomPageNumberPaginator
 # Local modules imports
 from activities.serializers import *
-
+from activities.models import Activity, ActivityPhotos, ActivityType
+from members import models
 # Django imports
 from django.utils import timezone
 from django.http import Http404, HttpRequest
 from urllib.parse import unquote
 from datetime import date
 
+
 # * ---------------------------- For Admin Dashboard --------------------------- #
+
+class TestActi(generics.ListAPIView):
+    serializer_class = DeleteSerializer
+    queryset = Activity.objects.all()
 
 
 class AllActivities(generics.ListAPIView):
@@ -29,32 +35,27 @@ class AllActivities(generics.ListAPIView):
     - To retrieve the first page with a default page size (e.g., 10):
         - No additional parameters needed.
 
-    - To retrieve a specific page with a custom page size:
-        ```
-        GET http://your-api-endpoint/activities/?page=2&page_size=25
-        ```
     """
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
-    pagination_class = PageNumberPagination
     # permission_classes = (permissions.IsAdminUser, )
-
+    pagination_class = CustomPageNumberPaginator
+    
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-
+        data = queryset.values('id', 'activity_name', 'location',
+                               'start_at__date', 'activity_type__activity_type')
+        page = self.paginate_queryset(data)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            response_data = []
 
-        # data = queryset.values('id',
-        #     'activity_name',
-        #     'location',
-        #     type=F('activity_type__activity_type'),
-        #     starts_at=F('start_at__date'),  # Efficiently transform field name
-        #     )
-        # response_data = [dict(item) for item in data]
-        # ------------------------------------ OR use the under method------------------------------------ #
+            for item in page:
+                # to remove the old key retrieve its value then assign this value to a new key
+                item['start_at'] = item.pop('start_at__date')
+                item['activity_type'] = item.pop('activity_type__activity_type')
+                response_data.append(item)
+
+            return self.get_paginated_response(response_data)
 
         data = queryset.values('id', 'activity_name', 'location',
                                'start_at__date', 'activity_type__activity_type')
@@ -62,17 +63,9 @@ class AllActivities(generics.ListAPIView):
         response_data = []
 
         for item in data:
-            # to remove the old key retrieve its value then assign this value to a new key
             item['start_at'] = item.pop('start_at__date')
             item['activity_type'] = item.pop('activity_type__activity_type')
             response_data.append(item)
-
-        explain = self.queryset.query.explain(using='default')
-        print(f"Query explaination: {explain}")
-
-        returned_activities = "{}".format(len(response_data))
-        print(f"Returned Activities = {returned_activities} Activity") if len(
-            response_data) == 1 else print(f"Returned Activities = {returned_activities} Activities")
 
         return Response(response_data)
 
@@ -87,7 +80,7 @@ class CreateActivity(generics.CreateAPIView):
     """
     queryset = Activity.objects.all()
     serializer_class = CreateActivitySerializer
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (permissions.AllowAny,)
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -309,7 +302,7 @@ def activity_by_name(request: HttpRequest):
         text_seq = decoded_activity_name.split("_")  # Split the activity_name string
         # Filter activities based on the first part of the split name
         activities = Activity.objects.filter(
-            activity_name__startswith=text_seq[0])
+            activity_name__istartswith=text_seq[0])
 
         if not activity_name:
             return Response({
@@ -321,7 +314,7 @@ def activity_by_name(request: HttpRequest):
                 "error": "Activity not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UpComingActivitySerializerLimited(activities, many=True)
+        serializer = ActivityFilterSerializer(activities, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     except Exception as e:
@@ -352,3 +345,4 @@ def activity_by_location(request: HttpRequest):
 
     serializer = UpComingActivitySerializerLimited(activities, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+

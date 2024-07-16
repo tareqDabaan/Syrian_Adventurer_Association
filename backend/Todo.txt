@@ -200,3 +200,48 @@
 #         return Response({
 #             "deleted":f"Activity with id={pk} has been deleted"
 #             },status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+User Engagement Statistics
+Total Number of Users: Display the total count of users, segmented by user type (Participant, Member, Admin).
+New Users Over Time: Show a line chart of new user registrations over the past months or weeks.
+Active Users: Number of active users versus inactive users.
+User Demographics: Breakdown of users by age, gender, and martial status.
+Users with Discounts: Number of users who have earned a discount and their distribution over time.
+2. Activity Metrics
+Total Number of Activities: Display the total count of activities.
+Upcoming vs. Past Activities: Count and list of upcoming activities vs. those that have already occurred.
+Activity Popularity: A bar chart showing the number of participants per activity type (Camping, Hiking, etc.).
+Activity Registration Trends: Line chart showing how activity registrations have changed over time.
+Most Popular Activities: List the top 5 activities with the highest number of participants.
+3. Reservation Insights
+Total Reservations: Count of all reservation requests, segmented by status (Pending, Accepted, Rejected).
+Reservation Acceptance Rate: Percentage of reservations that are accepted versus total reservations.
+Reservation Trends: Line chart showing the number of reservations made over time.
+Rejected Reservations: Common reasons for reservation rejections (could be summarized from the RejectedReservations model).
+4. Financial Insights
+Revenue from Activities: Total revenue generated from activities, segmented by activity type.
+Discount Impact: Total amount of discounts given and the net revenue after applying discounts.
+Average Fee per Activity: Average fee charged per activity type.
+5. Geographic Distribution
+Activity Locations: Map displaying the locations of all activities.
+User Locations: Map showing the distribution of users by their current city.
+6. Content Statistics
+Total Articles Uploaded: Count of articles uploaded.
+Popular Articles: List of the most accessed or interacted with articles.
+Article Upload Trends: Line chart showing the frequency of article uploads over time.
+7. Member Participation
+Member Involvement: Number of activities each member is associated with.
+Top Contributors: Members who have participated in the most activities.
+Member Demographics: Breakdown of members by age, gender, and other relevant attributes.
+8. User Activity History
+User Participation: List of users and the number of activities they have participated in.
+Activity Recurrence: Users who participate repeatedly in activities.
+9. Custom KPIs
+Conversion Rate: Percentage of users who move from a reservation request to a confirmed participant.
+User Retention Rate: Percentage of users returning for new activities over a period.
+Feedback and Ratings: If there's a feedback mechanism, average ratings for activities and most common feedback themes.
+10. Miscellaneous Insights
+Peak Usage Times: Times of the day or week
