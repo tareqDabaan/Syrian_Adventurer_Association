@@ -17,6 +17,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['http://localhost:3000',
                  '127.0.0.1',
+                 '.vercel.app',
                  '0dca-145-249-53-86.ngrok-free.app'
             ]
 
