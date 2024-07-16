@@ -1,14 +1,19 @@
 
 from django.contrib import admin
+from django.http import HttpResponse
+
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import(
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import(TokenObtainPairView, TokenRefreshView,)
+
+
+def index(request):
+    return HttpResponse("Hello, world. You're at the root index.")
 
 urlpatterns = [
+    
+    path('', index),  # Root URL
 
     # Admin Site 
     path('admin/', admin.site.urls),
@@ -42,6 +47,6 @@ urlpatterns = [
     # User Preferences Application Endpoints 
     path('preferences/', include('user_preferences.urls', namespace = 'user_preferences')),  
     
-    path('price/', include('participants.urls', namespace = 'price')),  
+    # path('price/', include('participants.urls', namespace = 'price')),  
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
