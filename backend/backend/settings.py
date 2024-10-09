@@ -11,19 +11,22 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+STRIPE_PUBLISHABLE_KEY = os.getenv('PUBLISHABLE_KEY'), 
+STRIPE_SECRET_KEY = os.getenv('SECRET_KEY'), 
+
 SECRET_KEY = 'django-insecure-nbv)61+nz#45!wjzcru(2swnjt3@=h$&6-@_1=tu-m$3_wqktv'
 
 DEBUG = True
 
 ALLOWED_HOSTS = ['http://localhost:3000',
                  '127.0.0.1',
-                 'syrian-adventurer-association.vercel.app',
-                 '0dca-145-249-53-86.ngrok-free.app'
             ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", 
+    
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_HEADERS = [
     'authorization',
@@ -55,12 +58,12 @@ INSTALLED_APPS = [
     'admins.apps.AdminsConfig',
     'articles.apps.ArticlesConfig',
     'members.apps.MembersConfig',
-    'participants.apps.ParticipantsConfig',
     'reservations.apps.ReservationsConfig',
     'users.apps.UsersConfig',
     'gallery.apps.GalleryConfig',
-    'user_preferences.apps.UserPreferencesConfig',
-    
+    'mcdmalgorithm',
+    'user_preferences',
+
     #Third Party Packages
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -227,15 +230,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-# CORS_ALLOWED_ORIGINS = (
-#         "http://localhost:3000",
-#         "http://localhost:8000",
-#         "https://4bf2-146-70-104-6.ngrok-free.app"
-        
-#     )
-
 CSRF_TRUSTED_ORIGINS = ["https://localhost:3000", 
-                         "https://4bf2-146-70-104-6.ngrok-free.app"
     ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -256,14 +251,8 @@ TEMPLATES = [
     },
 ]
 
-# CSRF_COOKIE_SECURE = False 
-# SESSION_COOKIE_SECURE = False
-# CSRF_COOKIE_SAMESITE = 'None'
-# SESSION_COOKIE_SAMESITE = 'None'
-
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
 
 DATABASES = {
     "default": {
@@ -271,21 +260,10 @@ DATABASES = {
         "NAME": os.getenv('DB_NAME'), 
         "USER": os.getenv('DB_USER'), 
         "PASSWORD": os.getenv('DB_PASSWORD'), #
-        "HOST": "", # localhost
-        "PORT": "", # 5432
+        "HOST": "", 
+        "PORT": "", 
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.contrib.gis.db.backends.postgis",
-#         "NAME": os.getenv('DB_NAME'), 
-#         "USER": os.getenv('DB_USER'), 
-#         "PASSWORD": os.getenv('DB_PASSWORD'), #
-#         "HOST": "postgresql-tareqdabaan.alwaysdata.net", # localhost
-#         "PORT": "5432", # 5432
-#     }
-# }
 
 AUTH_USER_MODEL = "users.User"
 
@@ -295,7 +273,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes = 60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days = 1),
     'ROTATE_REFRESH_TOKENS': True,
-    # 'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': settings.SECRET_KEY,
@@ -311,34 +288,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
-    # 'DEFAULT_THROTTLE_CLASSES': [
-    #     'rest_framework.throttling.ScopedRateThrottle',
-    #   ],
-    
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'anon':'4/day',
-    #     'user':'4/day',
-    # },
 }
-
-
-#! To calc the connection queries
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'loggers': {
-#         'django.db.backends': {
-#             'level': 'DEBUG',  # Set the logging level to DEBUG
-#             'handlers': ['console'],
-#         },
-#     },
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

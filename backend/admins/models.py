@@ -11,7 +11,8 @@ class Messages(models.Model):
     message = models.TextField()
     sent_at = models.DateField(auto_now_add=True, blank=True, null=True)
     is_spam = models.BooleanField(default=False)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)  # New field for IP address
+    ip_address = models.GenericIPAddressField(null=True, blank=True)  
+    
     class Meta:
         verbose_name = "Messages"
         verbose_name_plural = "Messages"

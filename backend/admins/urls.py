@@ -33,6 +33,9 @@ urlpatterns = [
     path('total_users/', views.Statistics.as_view({"get":"get_total_users"})),
     path('new_users/', views.Statistics.as_view({"get":"get_new_users_over_time"})),
     path('total_activities/', views.Statistics.as_view({"get":"total_activities"})),
+    path('past_activities_per_city/', views.Statistics.as_view({"get":"past_activities"})),
+    path('past_activities_per_month/', views.Statistics.as_view({"get":"past_activities_by_month"})),
+    
     path('users_city/', views.user_counts_by_location), #Used in dashboard
     
     path('count_users/', views.Statistics.as_view({"get":"count_users"})),

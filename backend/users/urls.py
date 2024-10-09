@@ -22,10 +22,13 @@ urlpatterns = [
     path('complete_profile/', auth_views.CompleteSignUp.as_view({'put': 'update'}), name = 'profiles'),
     #* ---------------------------- End Authentication --------------------------- #
     
+    #* -------------------------------- User Profile ------------------------------- #
+    path('userprofile/', views.UserProfile.as_view(), name='profile'),
+    path('userprofile/update/', views.UserUpdateView.as_view(), name='profile'),
+    #* -------------------------------- End User Profile ------------------------------- #
     
     #* ---------------------- CRUD operations on user's data for admin dashboard ---------------------- #
     path('list_participants_data/', views.ListParticipantsData.as_view()),
-
     #* ---------------------------- End CRUD operations --------------------------- #
 
 
@@ -37,8 +40,9 @@ urlpatterns = [
     path('test_login/', auth_views.MyObtainTokenPairView.as_view(), name=''),
     path('test_refresh/', TokenRefreshView.as_view(), name=''),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
+    
     #* ---------------------------------- End Testing --------------------------------- #
     
 ]
-
 urlpatterns += router.urls

@@ -20,21 +20,53 @@ def generate_image():
 @api_view(['POST'])
 def create_mock_activities(request):
     try:
-        n = request.data.get('n', 5)  
+        n = request.data.get('n',5)  
         pictures = ['https://unsplash.com/photos/brown-dome-tent-near-trees-at-night-8f_VQ3EFbTg']
+        activity_names = ["Mountain Trekking", "Beach Camping", "City Hiking", "Forest Adventure", "River Rafting",
+                          "Desert Safari","Island Hopping","Coastal Kayaking","Jungle Expedition","Canyon Climbing","Glacier Hiking",
+                          "Waterfall Rappelling","Savannah Wildlife Tour","Coral Reef Diving","Sunset Sailing","Cave Exploration",
+                          "Volcanic Trail Trekking","Alpine Skiing","Mangrove Boat Tour","Arctic Snowshoeing","Cliffside Camping","Wilderness Survival Training","Hot Air Ballooning",
+                          "Coastal Trail Running","Historical City Tour"
+                          ]
         
         
-        activity_names = ["Mountain Trekking", "Beach Camping", "City Hiking", "Forest Adventure", "River Rafting"]
-        locations = ["Lattakia, Mashqita, جزيرة الاكواخ", "Tartus, Al-Qadmus, قمة النبي شيث", "Yosemite Park", "Amazon Rainforest", "Nile River"]
+        locations = ["Lattakia", "Tartus", "Homs", "Mashqita", "Alqadmus", "Safita", "Kafroun", "Maloula", "Slunfa", "Kasab"
+                     ,"Chalma" , "Wadi Qandil" , "Al ghzlan island" , "Al badrousia", "Al Sheir" , "Raas al basit" , "jableh" , "al qurdaha"
+                     ]
+        
+        
         descriptions = [
             "A thrilling adventure on the mountains.",
             "A serene camping experience by the beach.",
             "Exploring the city trails.",
             "An adventurous trip through the forest.",
-            "Exciting river rafting activity."
+            "Exciting river rafting activity.",
+            "An exhilarating journey through the desert dunes.",
+            "Explore multiple islands on this adventurous trip.",
+            "Paddle along the scenic coastline in a kayak.",
+            "A deep dive into the heart of the jungle.",
+            "Scale the towering canyons on this climbing adventure.",
+            "A breathtaking hike across glacial terrains.",
+            "Descend waterfalls with thrilling rappelling techniques.",
+            "Experience the wild on a tour through the savannah.",
+            "Dive into vibrant coral reefs teeming with marine life.",
+            "Sail into the sunset with picturesque views.",
+            "Discover hidden caves and underground mysteries.",
+            "Trek along volcanic trails with stunning landscapes.",
+            "Ski down the slopes of majestic alpine mountains.",
+            "Navigate through lush mangroves on a boat.",
+            "Trek across the snowy Arctic landscape with snowshoes.",
+            "Camp on the edge of cliffs for a stunning view.",
+            "Learn essential survival skills in the wilderness.",
+            "Float high above the landscape in a hot air balloon.",
+            "Run along the beautiful coastal trails.",
+            "Explore the rich history of a city on foot."            
         ]
+        
+
         activity_types = models.ActivityType.objects.all()
         members = list(Member.objects.all())
+
         for i in range(n):
             start_time = datetime.now() + timedelta(days=random.randint(1, 30))
             end_time = start_time + timedelta(hours=random.randint(1, 5))
@@ -47,7 +79,7 @@ def create_mock_activities(request):
                 ends_at=end_time,
                 max_participants=random.randint(50, 100),
                 activity_name=random.choice(activity_names),
-                activity_fee=round(random.uniform(10, 100), 2),
+                activity_fee=round(random.uniform(60000, 900000), 2),
                 activity_description=random.choice(descriptions),
                 registration_deadline=registration_deadline.date(),
                 location=random.choice(locations),

@@ -46,7 +46,9 @@ urlpatterns = [
     
     # User Preferences Application Endpoints 
     path('preferences/', include('user_preferences.urls', namespace = 'user_preferences')),  
+   
+    # User Preferences Application Endpoints 
+    path('mcdm/', include('mcdmalgorithm.urls', namespace = 'mcdm')),  
     
-    # path('price/', include('participants.urls', namespace = 'price')),  
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

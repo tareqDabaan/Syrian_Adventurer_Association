@@ -47,7 +47,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         data['participant_id'] = request.user.id
       
-        activity =  data.get('activity_id')
+        activity = data.get('activity_id')
         
         if not activity:
             return Response({

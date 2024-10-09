@@ -76,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     base_type = UserType.PARTICIPANT
     ADMIN_TYPE = UserType.ADMIN
     user_type = models.CharField(max_length = 16, choices = UserType.choices, default = base_type )
-    current_city =  models.CharField(max_length = 16, unique = False, null = False) #! PointField 
+    current_city =  models.CharField(max_length = 16, unique = False, null = False)
     emergency_number = models.CharField(max_length = 16, unique = False, null = False) #!Unique must be set to True
     work = models.CharField(max_length = 32)
     martial_status = models.CharField(max_length = 32, choices = MartialStatus.choices)
@@ -102,7 +102,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         
     def __str__(self):
         return self.email
-
 
 class PasswordReset(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

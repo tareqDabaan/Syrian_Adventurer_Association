@@ -417,28 +417,3 @@ class CompleteSignUp(viewsets.GenericViewSet, mixins.UpdateModelMixin):
     def get_object(self):
         return self.request.user
     
-    
-    
-    
-
-
-# class LogInAPI(TokenObtainPairView):
-#     """
-#     This API is used to Login in the website
-#     Provide email, password and you'll get the refresh token and access token
-#     Permissions: Allowed for all users
-#     """
-#     serializer_class = userserializer.LogInSerializer
-#     permission_classes = ( )
-    
-#     def post(self, request, *args, **kwargs):
-#         try:
-#             return super().post(request, *args, **kwargs)
-        
-#         #? If either email or password is wrong raise a message error 
-#         except AuthenticationFailed as e:
-#             return Response({
-#                 'message': e.detail
-#                 }, status = status.HTTP_401_UNAUTHORIZED)
-
-

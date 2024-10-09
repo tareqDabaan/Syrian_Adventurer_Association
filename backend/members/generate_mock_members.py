@@ -60,9 +60,9 @@ def create_mock_users(request):
                 current_city=random.choice(['Homs', 'Damascus', 'Lattakia', 'Hama', 'Aleppo', 'Tartus', 'Alqadmus']),
                 work=job,
                 martial_status=random.choice(['SINGLE', 'MARRIED']),
-                email=f'{first_name.lower()}.{last_name.lower()}@example.com',
+                email=f'{first_name.lower()}{last_name.lower()}@gmail.com',
                 age=random.randint(18, 60),
-                social_media_profiles={},
+                social_media_profiles={"instagram":"www.instagram.com","facebook":"www.facebook.com","youtube":"www.youtube.com"},
                 is_active=True,
             )
             

@@ -27,9 +27,6 @@ from admins.models import Messages
 
 import pickle
 import os
-import zipfile
-import requests
-from django.utils.decorators import method_decorator
 
 class MessagesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -125,6 +122,7 @@ class ContactUs(viewsets.ModelViewSet):
         return Response({'message': 'Done'}, status=status.HTTP_200_OK)
     
 # ---------------------------------- Statistics --------------------------------- #
+from django.db.models.functions import TruncMonth
 
 class Statistics(viewsets.ModelViewSet):
     
@@ -166,6 +164,7 @@ class Statistics(viewsets.ModelViewSet):
             'total_activities': total_activities.count()
         })
         
+    
     def total_activities(self, request):
         upcoming_activities = activities_models.Activity.objects.filter(start_at__gte=timezone.now())
         past_activities = activities_models.Activity.objects.filter(start_at__lt=timezone.now())
@@ -173,12 +172,30 @@ class Statistics(viewsets.ModelViewSet):
         camping_activities = activities_models.Activity.objects.filter(activity_type = 1) 
 
         return Response({
-            "upcoming_activities": upcoming_activities.count(),
             "past_activities": past_activities.count(),
+            "upcoming_activities": upcoming_activities.count(),
             "hiking_activities": hiking_activities.count(),
             "camping_activities": camping_activities.count()
         })
+   
+    def past_activities(self, request):
+        past_activities = activities_models.Activity.objects.filter(start_at__lt=timezone.now())
+        location_counts = past_activities.values('location').annotate(count=Count('location'))
+        response_data = {item['location']: item['count'] for item in location_counts}
+        
+        return Response(response_data)
 
+    def past_activities_by_month(self, request, *args, **kwargs):
+        # Filter activities that have ended before today
+        past_activities = activities_models.Activity.objects.filter(start_at__lt=timezone.now())
+
+        # Truncate the date to month and count by month
+        month_counts = past_activities.annotate(month=TruncMonth('start_at')).values('month').annotate(count=Count('id'))
+
+        # Format the response
+        response_data = {item['month'].strftime('%b'): item['count'] for item in month_counts}
+
+        return Response(response_data)
 
 @api_view(['GET'])
 def user_counts_by_location(request: HttpRequest):

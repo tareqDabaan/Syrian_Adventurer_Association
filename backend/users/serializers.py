@@ -5,6 +5,8 @@ from rest_framework_simplejwt.tokens import TokenError, RefreshToken
 
 # Local modules imports
 from users.models import *
+from reservations.models import AcceptedReservations
+from activities.models import Activity, ActivityType
 
 # Django imports
 from django.contrib.auth.password_validation import validate_password
@@ -13,8 +15,6 @@ from PIL import Image
 from io import BytesIO
 import datetime
 import re
-
-
 
 #! ------------------------ Authentication Serializers ------------------------ #
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -26,8 +26,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         return token
     
-    
-   
 
 class SignupSerializer(serializers.ModelSerializer):
     
@@ -84,17 +82,6 @@ class VerifyAccountSerializer(serializers.Serializer):
             raise serializers.ValidationError("OTP should be a six-digit code.")
         
         return otp
-
-    # def validate(self, attrs):
-    #     super().validate(attrs)
-    #     email = attrs["email"]
-    #     otp = attrs["otp"]
-
-    #     user = User.objects.filter(email=email).first()
-
-    #     # Update user's account status
-    #     user.is_verified = True
-    #     user.save()
 
 
 class LogInSerializer(TokenObtainPairSerializer):
@@ -315,49 +302,51 @@ class UserSerializer(serializers.ModelSerializer):
 
         representation['full_name'] = full_name
         return representation
-                
+        
 class UserProfileSerializer(serializers.ModelSerializer):
-    
+    hike_activities = serializers.SerializerMethodField()
+    camp_activities = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'current_city', 'phone']
-    
-    def __init__(self, instance=None, data=..., **kwargs):
-        super().__init__(instance, data, **kwargs)
+        fields = ['first_name', 'mid_name', 'last_name', 'email', 'profile_image', 'current_city', 'hike_activities', 'camp_activities', 'age']
 
-    def to_representation(self, instance: User):
-        full_name = "{} {}".format(instance.first_name, instance.last_name)
-        
-        return {
-            "id": instance.id
-            , "email": instance.email
-            , "full_name": full_name
-            , "location": instance.current_city
-            , "phone": instance.phone
-            # todo, "image":instance.image.split(",")
-        }
+    def get_hike_activities(self, obj):
+        return AcceptedReservations.objects.filter(
+            user=obj,
+            activity_id__activity_type__activity_type=ActivityType.Type.HICKING
+        ).count()
+
+    def get_camp_activities(self, obj):
+        return AcceptedReservations.objects.filter(
+            user=obj,
+            activity_id__activity_type__activity_type=ActivityType.Type.CAMPING
+        ).count()
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['name'] = f"{instance.first_name} {instance.mid_name} {instance.last_name}"
+        representation['location'] = instance.current_city
+        representation.pop('first_name')
+        representation.pop('mid_name')
+        representation.pop('last_name')
+        representation.pop('current_city')
+        return representation
+
+# serializers.py
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'mid_name', 'last_name', 'email', 'current_city']
 
-# class UserFilterSerializer(serializers.ModelSerializer):
-    
-#     class Meta:
-#         model = User
-#         fields = ['email', 'first_name', 'last_name', 'current_city', 'phone', 'gender', 'age', 'profile_image']
-    
-#     def __init__(self, instance=None, data=..., **kwargs):
-#         super().__init__(instance, data, **kwargs)
-
-#     def to_representation(self, instance: User):
-#         full_name = "{} {}".format(instance.first_name, instance.last_name)
-        
-#         return {
-#             "id": instance.id
-#             , "email": instance.email
-#             , "full_name": full_name
-#             , "current_city": instance.current_city
-#             , "profile_image": instance.profile_image
-#             , "phone": instance.phone
-#             , "age": instance.age
-#             # todo, "image":instance.image.split(",")
-#         }
+    def update(self, instance, validated_data):
+        # Update the user's information
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.mid_name = validated_data.get('mid_name', instance.mid_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.current_city = validated_data.get('current_city', instance.current_city)
+        instance.save()
+        return instance

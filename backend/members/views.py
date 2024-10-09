@@ -230,34 +230,33 @@ class MemberActivityAPIView(APIView):
             - "error": "Member does not exist"
     """
     def get(self, request, member_id):
-    
         try:
-            member = models.Member.objects.get(pk = member_id)
-    
+            member = models.Member.objects.get(pk=member_id)
         except models.Member.DoesNotExist:
-            return Response({"error": "Member does not exist"}, status = status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Member does not exist"}, status=status.HTTP_404_NOT_FOUND)
         
-        member_data = memberserializer.OneMemberSerializer(member).data
-        activities_data = memberserializer.ActivitySerializer(member.activity_set.all(), many=True).data
+        member_data = memberserializer.OneMemberSerializer(member, context={'request': request}).data
+        activities_data = memberserializer.ActivitySerializer(member.activity_set.all(), many=True, context={'request': request}).data
         
         response_data = []
-        
         for activity in activities_data:
             start_at_str = activity['start_at']
-            start_at = datetime.strptime(start_at_str, '%Y-%m-%dT%H:%M:%S.%fZ')  # Adjust format as needed
-            
-            response_data.append(
-                {
-                    "activity_name": activity['activity_name'],
-                    "image": activity['image'],
-                    "start_at": start_at.strftime('%Y-%m-%d'),
-                    "location": activity['location'],
-                }
-            )
+            try:
+                start_at = datetime.strptime(start_at_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+            except ValueError:
+                start_at = datetime.strptime(start_at_str, '%Y-%m-%dT%H:%M:%SZ')
+
+            response_data.append({
+                "activity_name": activity['activity_name'],
+                "image": activity['image'],
+                "start_at": start_at.strftime('%Y-%m-%d'),
+                "location": activity['location'],
+            })
+        
         return Response({
             "member": member_data,
             "activities": response_data
-            }, status = status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
         
 
 @api_view(['GET'])

@@ -1,6 +1,7 @@
 # Third-part library imports
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets
+from rest_framework.views import APIView
 
 # Local modules imports
 from users import serializers as userserializer, models
@@ -59,15 +60,24 @@ class ListData(viewsets.ReadOnlyModelViewSet):
         return [permission() for permission in permission_classes]
     
 
-class UserProfile(generics.ListAPIView):
-    """
-    An API to retrieve user's data which will be used in the landing page #!accessable profile for everybody
-    """
-    serializer_class = userserializer.UserProfileSerializer
-    permission_classes = (permissions.AllowAny, )
-    queryset = models.User.objects
+class UserProfile(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many = True)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+    def get(self, request):
+        #? Get the logged-in user
+        user = request.user
+        serializer = userserializer.UserProfileSerializer(user)
+        return Response(serializer.data)
+        
+class UserUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        #? Get the logged-in user
+        user = request.user  
+
+        serializer = userserializer.UserUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

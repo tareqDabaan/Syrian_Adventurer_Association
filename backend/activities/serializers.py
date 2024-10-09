@@ -103,19 +103,14 @@ class RUDActivitySerializer(serializers.ModelSerializer):
     #! Actuvuty type sd
     activity_type = ActivityTypeSerializer()
     members =  MemberSerializer(many = True, read_only = True)
-
     class Meta:
         model = Activity
         fields = '__all__'
         
           
 class CreateActivitySerializer(serializers.ModelSerializer):
-    # members = MemberSerializer(many=True, read_only=True)
 
     class Meta:
         model = Activity
         fields = '__all__'
         
-    # def get_members(self, obj):
-    #         member_data = MemberSerializer(obj.members, many=True).data
-    #         return [member['name'] for member in member_data] 

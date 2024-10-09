@@ -38,10 +38,6 @@ urlpatterns = [
     path('activity_by_location/', views.activity_by_location),
     
     
-    
-    
-    
-    
     # --------------------------------- End Endpoints -------------------------------- #
     
 ]

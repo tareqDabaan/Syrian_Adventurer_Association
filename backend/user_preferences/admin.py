@@ -9,5 +9,10 @@ def export_as_csv(modeladmin, request, queryset):
 
 class PreferencesAdmin(admin.ModelAdmin):
     actions = [export_as_csv]
+    
+class Display(admin.ModelAdmin):
+    list_display = ('id','preferred_places',)
 
+
+# admin.site.register(Preferences,Display)
 admin.site.register(Preferences,PreferencesAdmin)

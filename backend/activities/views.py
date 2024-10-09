@@ -4,13 +4,16 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, generics
 from rest_framework.decorators import api_view
 from activities.pagination import CustomPageNumberPaginator
+from django.contrib.gis.db.models.functions import Distance
+# from django.contrib.gis.measure import Distance
+
 # Local modules imports
 from activities.serializers import *
-from activities.models import Activity, ActivityPhotos, ActivityType
-from members import models
+from activities.models import Activity
+
 # Django imports
 from django.utils import timezone
-from django.http import Http404, HttpRequest
+from django.http import HttpRequest
 from urllib.parse import unquote
 from datetime import date
 
@@ -116,6 +119,7 @@ class AdminRUDActivities(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Edit
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()

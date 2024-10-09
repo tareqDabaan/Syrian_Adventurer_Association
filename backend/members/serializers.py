@@ -38,9 +38,11 @@ class ListMemberDataSerializer(serializers.ModelSerializer):
    
 class OurTeamSerializer(serializers.ModelSerializer):
     
+    
+    #! Activity, Member Images
     class Meta:
         model = Member
-        fields = ['profile_image','first_name', 'last_name', 'age', 'date_joined']
+        fields = ['id','profile_image','first_name', 'last_name', 'age', 'date_joined']
         
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)  # Extract and remove 'fields' argument
@@ -58,36 +60,46 @@ class OurTeamSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         full_name = "{} {}".format(instance.first_name, instance.last_name)
         started_at = instance.date_joined.date()
+        representation['id'] = instance.id
         representation['full_name'] = full_name
         representation['started_at'] = started_at
         return representation
-    
+
+
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ['activity_name', 'image', 'start_at', 'location']
-      
-class OneMemberSerializer(serializers.ModelSerializer):
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        if instance.image:
+            representation['image'] = request.build_absolute_uri(instance.image.url)
+        
+        return representation
+    
+class OneMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = ['id', 'first_name', 'profile_image', 'last_name', 'age', 'date_joined', 'current_city', 'social_media_profiles']
-        
+
     def to_representation(self, instance):
         full_name = "{} {}".format(instance.first_name, instance.last_name)
-        
+        request = self.context.get('request')
         image_url = None
         started_at = instance.date_joined.date()
-        
+
         if instance.profile_image:
-            image_url = instance.profile_image.url
-            
+            image_url = request.build_absolute_uri(instance.profile_image.url)
+
         return {
-            "id": instance.id
-            , "full_name": full_name
-            , "profile_image": image_url
-            , "started_at": started_at
-            , "age": instance.age
-            , "location": instance.current_city
-            , "social_media_accounts": instance.social_media_profiles
+            "id": instance.id,
+            "full_name": full_name,
+            "profile_image": image_url,
+            "started_at": started_at,
+            "age": instance.age,
+            "location": instance.current_city,
+            "social_media_accounts": instance.social_media_profiles,
         }

@@ -2,17 +2,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets
-from rest_framework.decorators import api_view
-from rest_framework.pagination import PageNumberPagination
+
 # Local modules imports
 from gallery.serializers import *
 from gallery.models import Gallery
 
 # Django imports
-from django.utils import timezone
-from django.http import Http404, HttpRequest
-from urllib.parse import unquote
-from datetime import date
+from django.http import Http404
+
 
 class GalleryUploadAPI(generics.CreateAPIView):
     """

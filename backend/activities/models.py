@@ -52,13 +52,3 @@ class Activity(models.Model):
     def __str__(self):
         return self.activity_name
     
-class ActivityPhotos(models.Model):
-
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, blank=True, null=True)
-    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    uploaded_at = models.DateTimeField(auto_now_add = True, blank=True, null=True)
-    photos = models.ImageField(upload_to = 'activities_gallery/', blank=True, null=True) 
-    
-    def __str__(self):
-        return "Activity {} Photo uploaded by {} at {}".format(self.activity.activity_name, self.uploaded_by.first_name, self.uploaded_at)  
-    
